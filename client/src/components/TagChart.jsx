@@ -11,11 +11,12 @@ import {
 } from "recharts";
 import { MIN_ATTEMPTS_THRESHOLD } from "../data/fakeData";
 
-function getBarColor(rate, isValid) {
-  if (!isValid) return "#334155"; // muted for insufficient data
-  if (rate >= 70) return "#22c55e";
-  if (rate >= 40) return "#eab308";
-  return "#ef4444";
+// Define gradients in a defs object later, use url(#colorId) for fill
+function getBarColorId(rate, isValid) {
+  if (!isValid) return "colorMuted";
+  if (rate >= 70) return "colorSuccess";
+  if (rate >= 40) return "colorWarning";
+  return "colorDanger";
 }
 
 function CustomTooltip({ active, payload }) {
@@ -24,32 +25,33 @@ function CustomTooltip({ active, payload }) {
   const isValid = d.attempted >= MIN_ATTEMPTS_THRESHOLD;
 
   return (
-    <div className="glass-card rounded-xl px-4 py-3 shadow-2xl">
-      <p className="mb-1 text-sm font-semibold capitalize text-white">
+    <div className="glass-card rounded-2xl px-5 py-4 shadow-2xl border-white/10 backdrop-blur-3xl bg-black/40">
+      <p className="mb-2 text-base font-bold capitalize text-white tracking-tight">
         {d.tag}
       </p>
-      <div className="space-y-0.5 text-xs">
-        <p className="text-forge-muted">
-          Solved: <span className="text-forge-success">{d.solved}</span> / {d.attempted}
+      <div className="space-y-1.5 text-sm font-medium">
+        <p className="text-forge-muted flex justify-between gap-4">
+          <span>Solved</span>
+          <span className="text-white"><span className="text-emerald-400">{d.solved}</span> / {d.attempted}</span>
         </p>
-        <p className="text-forge-muted">
-          Success Rate:{" "}
+        <p className="text-forge-muted flex justify-between gap-4">
+          <span>Success Rate</span>
           <span
             className={
               !isValid
                 ? "text-forge-muted"
                 : d.successRate >= 70
-                ? "text-forge-success"
+                ? "text-emerald-400 drop-shadow-sm"
                 : d.successRate >= 40
-                ? "text-forge-warning"
-                : "text-forge-danger"
+                ? "text-amber-400 drop-shadow-sm"
+                : "text-red-400 drop-shadow-sm"
             }
           >
             {isValid ? `${d.successRate.toFixed(1)}%` : "N/A"}
           </span>
         </p>
         {!isValid && (
-          <p className="mt-1 text-forge-muted italic">
+          <p className="mt-2 text-xs text-forge-muted/70 italic border-t border-white/10 pt-2">
             Min {MIN_ATTEMPTS_THRESHOLD} attempts required
           </p>
         )}
@@ -65,68 +67,91 @@ export default function TagChart({ tagStats }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="glass-card rounded-2xl p-6"
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      className="glass-card rounded-3xl p-8 border-white/5 relative overflow-hidden"
     >
-      <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <h3 className="text-xl font-bold tracking-tight text-white">
           Tag Success Rates
         </h3>
-        <div className="flex items-center gap-4 text-xs text-forge-muted">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-forge-success" /> ≥70%
+        <div className="flex flex-wrap items-center gap-4 text-xs font-bold tracking-wider uppercase text-forge-muted bg-black/20 px-4 py-2 rounded-xl border border-white/5">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" /> ≥70%
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-forge-warning" /> ≥40%
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" /> ≥40%
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-forge-danger" /> &lt;40%
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]" /> &lt;40%
           </span>
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={340}>
-        <BarChart
-          data={sortedData}
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-          barCategoryGap="20%"
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(42, 42, 62, 0.6)"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="tag"
-            tick={{ fill: "#64748b", fontSize: 11 }}
-            axisLine={{ stroke: "#2a2a3e" }}
-            tickLine={false}
-            angle={-30}
-            textAnchor="end"
-            height={70}
-          />
-          <YAxis
-            domain={[0, 100]}
-            tick={{ fill: "#64748b", fontSize: 11 }}
-            axisLine={{ stroke: "#2a2a3e" }}
-            tickLine={false}
-            tickFormatter={(v) => `${v}%`}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(99, 102, 241, 0.05)" }} />
-          <Bar dataKey="successRate" radius={[6, 6, 0, 0]} maxBarSize={40}>
-            {sortedData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={getBarColor(
-                  entry.successRate,
-                  entry.attempted >= MIN_ATTEMPTS_THRESHOLD
-                )}
-                fillOpacity={entry.attempted >= MIN_ATTEMPTS_THRESHOLD ? 0.85 : 0.3}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="relative z-10">
+        <ResponsiveContainer width="100%" height={380}>
+          <BarChart
+            data={sortedData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+            barCategoryGap="25%"
+          >
+            <defs>
+              <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#34d399" stopOpacity={0.9}/>
+                <stop offset="95%" stopColor="#059669" stopOpacity={0.6}/>
+              </linearGradient>
+              <linearGradient id="colorWarning" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.9}/>
+                <stop offset="95%" stopColor="#d97706" stopOpacity={0.6}/>
+              </linearGradient>
+              <linearGradient id="colorDanger" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#f87171" stopOpacity={0.9}/>
+                <stop offset="95%" stopColor="#dc2626" stopOpacity={0.6}/>
+              </linearGradient>
+              <linearGradient id="colorMuted" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#475569" stopOpacity={0.5}/>
+                <stop offset="95%" stopColor="#334155" stopOpacity={0.2}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="4 4"
+              stroke="rgba(255, 255, 255, 0.05)"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="tag"
+              tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }}
+              axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+              tickLine={false}
+              angle={-35}
+              textAnchor="end"
+              height={80}
+              dy={10}
+            />
+            <YAxis
+              domain={[0, 100]}
+              tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }}
+              axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+              tickLine={false}
+              tickFormatter={(v) => `${v}%`}
+              dx={-10}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255, 255, 255, 0.02)" }} />
+            <Bar dataKey="successRate" radius={[8, 8, 0, 0]} maxBarSize={48}>
+              {sortedData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={`url(#${getBarColorId(
+                    entry.successRate,
+                    entry.attempted >= MIN_ATTEMPTS_THRESHOLD
+                  )})`}
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeWidth={1}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </motion.div>
   );
 }

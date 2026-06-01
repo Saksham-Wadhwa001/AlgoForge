@@ -11,7 +11,7 @@ export default function App() {
       <Sidebar />
 
       {/* Main Content Area — offset by sidebar width + gap */}
-      <div className="flex-1 transition-all duration-300" style={{ marginLeft: "280px" }}>
+      <div className="flex-1 transition-all duration-300" style={{ marginLeft: "300px" }}>
         <main className="mx-auto max-w-6xl px-8 py-10 min-h-screen">
           <AnimatePresence mode="wait">
             <motion.div

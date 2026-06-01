@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiSearch, FiActivity, FiCheckCircle, FiLayers } from "react-icons/fi";
+import { SiCodeforces, SiLeetcode } from "react-icons/si";
 import PlatformCard from "../components/PlatformCard";
 import StatsCard from "../components/StatsCard";
 import { FAKE_USER } from "../data/fakeData";
@@ -34,34 +35,63 @@ export default function Dashboard() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="flex flex-col gap-2"
       >
-        <h2 className="text-3xl font-extrabold tracking-tight text-white">Unified Dashboard</h2>
-        <p className="text-sm font-medium text-forge-muted">
+        <h2 className="text-4xl font-extrabold tracking-tight text-white">Unified Dashboard</h2>
+        <p className="text-base font-medium text-forge-muted">
           Connect your competitive programming handles to synchronize your progress.
         </p>
       </motion.div>
 
-      {/* Handle Input Section */}
+      {/* Handle Input Section - Redesigned for a more "filling" and premium look */}
       <motion.form
         onSubmit={handleAnalyze}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="glass-card rounded-3xl p-8 relative overflow-hidden"
+        className="glass-card rounded-[2rem] p-10 relative overflow-hidden max-w-4xl"
       >
         {/* Subtle decorative background glow */}
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-forge-accent/10 blur-[80px] pointer-events-none" />
+        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-forge-accent/10 blur-[100px] pointer-events-none" />
 
-        <div className="grid gap-6 md:grid-cols-3 relative z-10">
+        <div className="relative z-10 flex flex-col gap-6">
+          <div className="mb-2">
+            <h3 className="text-xl font-bold text-white tracking-tight">Sync Profiles</h3>
+            <p className="text-sm text-forge-muted mt-1">Enter your platform handles below to aggregate your stats.</p>
+          </div>
+
           {[
-            { key: "codeforces", placeholder: "tourist", label: "Codeforces", color: "focus:border-blue-500 focus:ring-blue-500/20" },
-            { key: "leetcode", placeholder: "neal_wu", label: "LeetCode", color: "focus:border-amber-500 focus:ring-amber-500/20" },
-            { key: "atcoder", placeholder: "tourist", label: "AtCoder", color: "focus:border-emerald-500 focus:ring-emerald-500/20" },
-          ].map(({ key, placeholder, label, color }) => (
-            <div key={key} className="relative group">
-              <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-forge-muted group-focus-within:text-white transition-colors">
-                {label}
-              </label>
-              <div className="relative">
+            { 
+              key: "codeforces", 
+              placeholder: "e.g., tourist", 
+              label: "Codeforces", 
+              color: "focus:border-blue-500 focus:ring-blue-500/20",
+              icon: <SiCodeforces className="h-6 w-6 text-blue-400" />
+            },
+            { 
+              key: "leetcode", 
+              placeholder: "e.g., neal_wu", 
+              label: "LeetCode", 
+              color: "focus:border-amber-500 focus:ring-amber-500/20",
+              icon: <SiLeetcode className="h-6 w-6 text-amber-400" />
+            },
+            { 
+              key: "atcoder", 
+              placeholder: "e.g., tourist", 
+              label: "AtCoder", 
+              color: "focus:border-emerald-500 focus:ring-emerald-500/20",
+              icon: <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">AC</div>
+            },
+          ].map(({ key, placeholder, label, color, icon }) => (
+            <div key={key} className="group relative flex flex-col sm:flex-row sm:items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5 transition-colors hover:bg-black/30">
+              <div className="flex items-center gap-4 sm:w-48 shrink-0">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                  {icon}
+                </div>
+                <label className="text-sm font-bold uppercase tracking-widest text-forge-muted group-focus-within:text-white transition-colors">
+                  {label}
+                </label>
+              </div>
+              
+              <div className="relative flex-1">
                 <input
                   type="text"
                   placeholder={placeholder}
@@ -69,23 +99,24 @@ export default function Dashboard() {
                   onChange={(e) =>
                     setHandles((prev) => ({ ...prev, [key]: e.target.value }))
                   }
-                  className={`w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-3.5 text-sm font-medium text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:ring-4 focus:bg-black/40 hover:bg-black/30 ${color}`}
+                  className={`w-full rounded-xl border border-white/10 bg-black/40 px-6 py-4 text-base font-semibold text-white placeholder-white/20 transition-all duration-300 focus:outline-none focus:ring-4 focus:bg-black/60 hover:bg-black/50 ${color}`}
                 />
               </div>
             </div>
           ))}
-        </div>
-        <div className="mt-8 flex justify-end relative z-10">
-          <motion.button
-            type="submit"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-white text-black px-8 py-3.5 text-sm font-bold shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-forge-accent via-purple-400 to-forge-accent opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
-            <FiSearch className="h-4 w-4 relative z-10" />
-            <span className="relative z-10">Analyze Profiles</span>
-          </motion.button>
+          
+          <div className="mt-6 flex justify-end">
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-white text-black px-10 py-4 text-base font-bold shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,255,255,0.25)] sm:w-auto w-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-forge-accent via-purple-400 to-forge-accent opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
+              <FiSearch className="h-5 w-5 relative z-10" />
+              <span className="relative z-10">Analyze Profiles</span>
+            </motion.button>
+          </div>
         </div>
       </motion.form>
 
@@ -102,7 +133,7 @@ export default function Dashboard() {
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid gap-5 sm:grid-cols-3"
+            className="grid gap-6 sm:grid-cols-3"
           >
             <StatsCard
               icon={FiCheckCircle}
@@ -137,8 +168,8 @@ export default function Dashboard() {
 
           {/* Platform Cards */}
           <div>
-            <div className="mb-6 flex items-center gap-3">
-              <h3 className="text-xl font-bold tracking-tight text-white">
+            <div className="mb-8 flex items-center gap-4">
+              <h3 className="text-2xl font-bold tracking-tight text-white">
                 Platform Breakdown
               </h3>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
@@ -162,21 +193,21 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="glass-card relative overflow-hidden rounded-3xl p-6 border-forge-accent/20"
+            className="glass-card relative overflow-hidden rounded-3xl p-8 border-forge-accent/20"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-forge-accent/10 to-transparent pointer-events-none" />
-            <div className="relative z-10 flex items-center gap-5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-forge-accent/20 border border-forge-accent/30 shadow-[0_0_30px_rgba(129,140,248,0.2)]">
-                <FiActivity className="h-6 w-6 text-forge-accent-light" />
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-forge-accent/20 border border-forge-accent/30 shadow-[0_0_30px_rgba(129,140,248,0.2)]">
+                <FiActivity className="h-8 w-8 text-forge-accent-light" />
               </div>
               <div>
-                <p className="text-base font-bold text-white mb-1">
+                <p className="text-xl font-bold text-white mb-2">
                   Growth Zone:{" "}
-                  <span className="text-forge-accent-light bg-forge-accent/10 px-2 py-0.5 rounded-md border border-forge-accent/20">
+                  <span className="text-forge-accent-light bg-forge-accent/10 px-3 py-1 rounded-lg border border-forge-accent/20 drop-shadow-sm ml-2">
                     {user.growthZone.lower} – {user.growthZone.upper}
                   </span>
                 </p>
-                <p className="text-sm font-medium text-forge-muted">
+                <p className="text-base font-medium text-forge-muted">
                   Problems in this rating range will accelerate your improvement the fastest.
                 </p>
               </div>

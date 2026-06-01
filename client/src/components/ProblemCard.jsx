@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { FiExternalLink, FiUsers, FiStar } from "react-icons/fi";
 
 const platformBadge = {
-  codeforces: { label: "CF", color: "bg-forge-cf/20 text-forge-cf border-forge-cf/30" },
-  leetcode: { label: "LC", color: "bg-forge-lc/20 text-forge-lc border-forge-lc/30" },
-  atcoder: { label: "AC", color: "bg-forge-ac/20 text-forge-ac border-forge-ac/30" },
+  codeforces: { label: "Codeforces", short: "CF", color: "text-blue-400 bg-blue-500/10 border-blue-500/20", glow: "group-hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]", dot: "bg-blue-400" },
+  leetcode: { label: "LeetCode", short: "LC", color: "text-amber-400 bg-amber-500/10 border-amber-500/20", glow: "group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]", dot: "bg-amber-400" },
+  atcoder: { label: "AtCoder", short: "AC", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", glow: "group-hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]", dot: "bg-emerald-400" },
 };
 
 export default function ProblemCard({ problem, index = 0 }) {
@@ -12,59 +12,67 @@ export default function ProblemCard({ problem, index = 0 }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.15 }}
-      whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-      className="glass-card group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:border-forge-accent/30"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      className={`glass-card group relative overflow-hidden rounded-3xl p-7 transition-all duration-500 hover:border-white/20 ${badge.glow}`}
     >
-      {/* Index badge */}
-      <div className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg bg-forge-accent/10 text-sm font-bold text-forge-accent-light">
-        #{index + 1}
-      </div>
+      {/* Background Gradient Hover State */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <h3 className="text-xl font-bold text-white tracking-tight transition-colors duration-300 group-hover:text-forge-accent-light">
+            {problem.name}
+          </h3>
+          <div className="flex shrink-0 h-8 w-8 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white shadow-sm">
+            #{index + 1}
+          </div>
+        </div>
 
-      {/* Problem name */}
-      <h3 className="mb-3 pr-12 text-lg font-semibold text-white transition-colors group-hover:text-forge-accent-light">
-        {problem.name}
-      </h3>
-
-      {/* Meta row */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <span className={`rounded-md border px-2 py-0.5 text-xs font-medium ${badge.color}`}>
-          {badge.label}
-        </span>
-        <span className="flex items-center gap-1 text-xs text-forge-muted">
-          <FiStar className="h-3 w-3" />
-          {problem.rating}
-        </span>
-        <span className="flex items-center gap-1 text-xs text-forge-muted">
-          <FiUsers className="h-3 w-3" />
-          {problem.solveCount.toLocaleString()} solves
-        </span>
-      </div>
-
-      {/* Tags */}
-      <div className="mb-5 flex flex-wrap gap-2">
-        {problem.tags.map((tag) => (
-          <span
-            key={tag}
-            className="rounded-full bg-forge-bg px-3 py-1 text-xs text-forge-muted"
-          >
-            {tag}
+        {/* Meta row */}
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <span className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${badge.color}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${badge.dot}`} />
+            {badge.short}
           </span>
-        ))}
-      </div>
+          <span className="flex items-center gap-1.5 rounded-lg bg-black/20 border border-white/5 px-2.5 py-1 text-xs font-bold text-forge-muted">
+            <FiStar className="h-3 w-3 text-amber-400" />
+            {problem.rating}
+          </span>
+          <span className="flex items-center gap-1.5 rounded-lg bg-black/20 border border-white/5 px-2.5 py-1 text-xs font-bold text-forge-muted">
+            <FiUsers className="h-3 w-3 text-blue-400" />
+            {problem.solveCount.toLocaleString()}
+          </span>
+        </div>
 
-      {/* Action */}
-      <a
-        href={problem.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-xl bg-forge-accent/10 px-4 py-2 text-sm font-medium text-forge-accent-light transition-all duration-200 hover:bg-forge-accent/20"
-      >
-        Solve Problem
-        <FiExternalLink className="h-3.5 w-3.5" />
-      </a>
+        {/* Tags */}
+        <div className="mb-8 flex flex-wrap gap-2">
+          {problem.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-lg bg-white/5 border border-white/5 px-3 py-1.5 text-[11px] font-medium text-forge-muted transition-colors duration-300 group-hover:bg-white/10 group-hover:text-white"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Action Button */}
+        <div className="mt-auto">
+          <a
+            href={problem.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/btn relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-forge-accent/10 border border-forge-accent/20 px-4 py-3 text-sm font-bold text-forge-accent-light transition-all duration-300 hover:bg-forge-accent hover:text-white hover:border-forge-accent hover:shadow-[0_0_20px_rgba(129,140,248,0.4)]"
+          >
+            <span className="relative z-10">Solve Problem</span>
+            <FiExternalLink className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
+          </a>
+        </div>
+      </div>
     </motion.div>
   );
 }
