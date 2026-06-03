@@ -1,15 +1,15 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
-import userRoutes from "./routes/userRoutes.js";
+import platformRoutes from "./routes/platforms.js";
+import analyzeRoutes from "./routes/analyze.js";
+import recommendationRoutes from "./routes/recommendations.js";
 
 // ── Load Environment Variables ──
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/algoforge";
 
 // ── Middleware ──
 app.use(
@@ -21,7 +21,9 @@ app.use(
 app.use(express.json());
 
 // ── Routes ──
-app.use("/api/users", userRoutes);
+app.use("/api/platforms", platformRoutes);
+app.use("/api/analyze", analyzeRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -29,7 +31,6 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     service: "AlgoForge API",
     timestamp: new Date().toISOString(),
-    dbState: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 });
 
@@ -44,25 +45,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, error: "Internal server error" });
 });
 
-// ── Database Connection & Server Start ──
-async function startServer() {
-  try {
-    await mongoose.connect(MONGO_URI);
-    console.log(`✅ MongoDB connected: ${mongoose.connection.host}`);
-
-    app.listen(PORT, () => {
-      console.log(`🚀 AlgoForge server running on http://localhost:${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-    });
-  } catch (error) {
-    console.error("❌ Failed to connect to MongoDB:", error.message);
-    console.log("⚠️  Server starting without database connection...");
-
-    // Start server anyway for development
-    app.listen(PORT, () => {
-      console.log(`🚀 AlgoForge server running on http://localhost:${PORT} (no DB)`);
-    });
-  }
-}
-
-startServer();
+// ── Server Start ──
+app.listen(PORT, () => {
+  console.log(`🚀 AlgoForge server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📡 Endpoints:`);
+  console.log(`   GET  /api/platforms/codeforces/:handle`);
+  console.log(`   GET  /api/platforms/leetcode/:handle`);
+  console.log(`   GET  /api/platforms/atcoder/:handle`);
+  console.log(`   POST /api/platforms/all`);
+  console.log(`   POST /api/analyze`);
+  console.log(`   POST /api/recommendations`);
+});
