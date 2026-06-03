@@ -1,7 +1,7 @@
 // ── AlgoForge API Client ──
 // All API calls go through /api (proxied to backend in dev via Vite)
 
-const BASE = "/api";
+const BASE = import.meta.env.VITE_API_URL || "/api";
 
 /**
  * Generic fetch wrapper with error handling.
